@@ -63,6 +63,12 @@
         Network
         100 TC
         20 nRT
+        <details>
+            <summary>Network structure</summary>
+            <div class="img-resize">
+                <img src="Figures\network.png" title="Topography of a random generated neural network containing 100 TC and 20 nRT cells" />
+            </div>
+        </details>
     </p>
     <h3 id="Network topology">Network topology</h3>
     <p>
@@ -131,17 +137,17 @@ GABA}_A}$$
     <details>
         <summary>nRT hyperpolarization</summary>
         <div class="img-resize">
-            <img src="Figures\NRT_rebound_after_hyperpolarization.jpg" title="nRT cell reaction to hyperpolarization based on temperature" />
+            <img src="Figures\nRT_rebound_after_hyperpolarization.jpg" title="nRT cell reaction to hyperpolarization based on temperature" />
         </div>
     </details>
     <details>
         <summary>nRT GABAa input</summary>
         <div class="img-resize">
-            <img src="Figures\NRT_firing_after_AMPA_input.jpg" title="nRT cell reaction to EPSP based on temperature" />
+            <img src="Figures\nRT_firing_after_AMPA_input.jpg" title="nRT cell reaction to EPSP based on temperature" />
         </div>
     </details>
     <p>
-        To support our findings, we created a thalamic network model consisting of single-compartment thalamocortical (<a href="TC">TC</a>) and thalamic reticular (<a href="nRT">nRT</a>) cells based on the work of Alain Destexhe [<a href="#ref1">1</a>]. The original Destexhe model was capable of producing sustained oscillations through the interaction of the TC and nRT cells. TC cells elicited AMPA-mediated EPSPs in the nRT cells while nRT cells inhibited the TC cells through a mixture of GABAa and GABAb receptors. Thanks to the characteristics of the T current – found in both cell types – a sufficiently strong IPSP could elicit a rebound burst from the TC cell. Following an EPSP the T current in the nRT cells results in an oscillatory bursting behavior that stops after a few bursts. The TC rebounds refresh the nRT burst train thus keeping the oscillation of the network alive.
+        To support our findings, we created a thalamic network model consisting of single-compartment thalamocortical and thalamic reticular cells based on the work of Alain Destexhe [<a href="#ref1">1</a>]. The original Destexhe model was capable of producing sustained oscillations through the interaction of the TC and nRT cells. TC cells elicited AMPA-mediated EPSPs in the nRT cells while nRT cells inhibited the TC cells through a mixture of GABAa and GABAb receptors. Thanks to the characteristics of the T current – found in both cell types – a sufficiently strong IPSP could elicit a rebound burst from the TC cell. Following an EPSP the T current in the nRT cells results in an oscillatory bursting behavior that stops after a few bursts. The TC rebounds refresh the nRT burst train thus keeping the oscillation of the network alive.
     </p>
     <details>
         <summary>nRT rebound bursts</summary>
@@ -159,7 +165,8 @@ GABA}_A}$$
         Where \(syn\) can be substituted for AMPA or GABA-A and \(I_{syn}\) is the synaptic current, \(g_{syn}\) is the maximal conductance and \(E_{syn}\) is the reversal potential respectively. The fraction of open channels is denoted by \(r\) and \([C]\) is the concentration of neurotransmitters in the synaptic cleft, while \(\alpha\) and \(\beta\) are the forward and backward binding rates of neurotransmitters for the given receptor type. We also define the following variables:
     </p>
     $$\tau_{r}=\dfrac{1}{\alpha{C}_{max}+\beta}$$
-    $$r_{\infty}=\dfrac{\alpha{C}_{max}}{\alpha{C}_{max}+\beta}$$
+    $$r_{\infty}=\dfrac{\alpha{C}_{max
+}}{\alpha{C}_{max}+\beta}$$
     $$\varphi_h=Q_{10}^{\dfrac{T-T_{exp}}{10\,^{\circ}\mathrm{C}}}$$
     <p>
         Where \(\tau_{r}\) is the time constant of channel binding, \(r_{\infty}\) is the steady-state fraction of open channels and \(\varphi_h\) is the temperature dependent multiplier that was added to the original model. \(C_{max}\) is the maximum concentration of transmitters, \(T\) is the actual temperature and \(T_{exp}\) is the experimental temperature the binding rates got measured on. The temperature coefficients (\(Q_{10}\)) of AMPA and GABA-A receptors were estimated based on the work of Postlethwaite et al. (2007) [6] and Otis and Mody (1992) [7], respectively.
