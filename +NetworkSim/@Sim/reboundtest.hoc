@@ -1,0 +1,138 @@
+{load_file("nrngui.hoc")}
+
+//----------------------------------------------------------------------------
+//  Setup variables
+//----------------------------------------------------------------------------
+
+// Passed values
+dt = dt_arg
+v_init = v_init_arg
+celsius = celsius_arg
+tstop = tstop_arg
+
+// Base settings
+objref fh // file handle
+synapsVectorSize = 3
+steps_per_ms = 1/dt
+
+//----------------------------------------------------------------------------
+//  Setup Cells
+//----------------------------------------------------------------------------
+
+{load_file("TC.tem")}
+{load_file("RE.tem")}
+
+objectvar TestCell, Receptor, Receptor2
+
+if (CellType == 1){    
+    TestCell = new sTC(temperature_it, temperature_ih)    
+    TestCell.soma.ghbar_iar = 1.5e-5  
+    TestCell.kl.gmax = k_leak
+
+    Receptor = new GABAa_S()
+    Receptor2 = new GABAb_S()
+    TestCell.soma Receptor.loc(0.5)
+    TestCell.soma Receptor2.loc(0.5)
+    Receptor.gmax = gabaa_gmax
+    Receptor2.gmax = gabab_gmax    
+
+    //GABAa
+    Alpha_GABAa_S = 20		// from diffusion model
+    Beta_GABAa_S = 0.162
+    Cmax_GABAa_S = 0.5		// short pulses
+    Cdur_GABAa_S = 0.3
+    Erev_GABAa_S = -85		// Rinzel's Erev
+    temperature_GABAa_S = temperature_gabaa
+
+    //GABAb
+    K1_GABAb_S	= 0.09	//	(/ms mM) forward binding rate to receptor
+    K2_GABAb_S	= 0.0012 //	(/ms)	backward (unbinding) rate of receptor
+    K3_GABAb_S	= 0.18 //	(/ms)	rate of G-protein production
+    K4_GABAb_S	= 0.034 //	(/ms)	rate of G-protein decay
+    KD_GABAb_S	= 100	//		dissociation constant of K+ channel
+    n_GABAb_S	= 4	//		nb of binding sites of G-protein on K+
+    Erev_GABAb_S	= -95	//	(mV)	reversal potential (E_K)
+    Cmax_GABAb_S = 0.5	// short pulses
+    Cdur_GABAb_S = 0.3
+    temperature_GABAb_S = temperature_gabab
+}
+if (CellType == 2){
+    TestCell = new sRE(temperature_it2, leak_g, cadecayTau, cac_sk, gkbar_sk)  
+    Receptor = new AMPA_S()
+    TestCell.soma Receptor.loc(0.5)
+    
+    Receptor.gmax = ampa_gmax
+
+    Alpha_AMPA_S = 0.94		// kinetics from simplex with short pulses
+    Beta_AMPA_S = 0.18
+    Cmax_AMPA_S = 0.5
+    Cdur_AMPA_S = 0.3
+    Erev_AMPA_S = 0
+    temperature_AMPA_S = temperature_ampa
+}
+
+//----------------------------------------------------------------------------
+//  NetCon
+//----------------------------------------------------------------------------
+
+objref ncStim, nc, ncStim2, nc2
+
+
+ncStim = new VecStim()
+{ncStim.play(ncVec)}
+nc = new NetCon(ncStim, Receptor)
+nc.weight = 100
+
+if (CellType == 1){    
+    ncStim2 = new VecStim()
+    {ncStim2.play(ncVec)}
+    nc2 = new NetCon(ncStim2, Receptor2)
+    nc2.weight = 100
+}
+
+//----------------------------------------------------------------------------
+//  IClamp
+//----------------------------------------------------------------------------
+
+objref baseStim
+
+TestCell.soma baseStim = new IClamp(0.5)
+baseStim.del = 0
+baseStim.dur = tstop
+baseStim.amp = stim_amp 
+
+
+//----------------------------------------------------------------------------
+//  Setup recording
+//----------------------------------------------------------------------------
+
+objref CellRecord
+CellRecord = new Vector()
+{CellRecord.record(&TestCell.soma.v(0.5), dt)}
+
+//----------------------------------------------------------------------------
+//  RUN
+//----------------------------------------------------------------------------
+
+init()
+run()
+
+//----------------------------------------------------------------------------
+//  Write to file
+//----------------------------------------------------------------------------
+
+objref tempmatrix
+
+fh = new File()
+{fh.wopen("rebound_test.txt")}
+tempmatrix = new Matrix()
+{tempmatrix.resize(CellRecord.size(), 1)}
+{tempmatrix.setcol(0, CellRecord)}
+{tempmatrix.fprint(0, fh, " %g")}
+{fh.close}
+
+//----------------------------------------------------------------------------
+//  DONE
+//----------------------------------------------------------------------------
+
+print " DONE "

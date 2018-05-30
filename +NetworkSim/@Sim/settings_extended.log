@@ -1,0 +1,288 @@
+1 sections; 1 segments
+
+* 1 real cells (1 encapsulated in 1 distinct objects of 1 classes)
+    * 1 sTC
+        * sTC[0] root sTC[0].soma[0]
+            1 sections; 1 segments
+            * 1 distinct values of nseg
+                Longest dx is 96 at sTC[0].soma[0] with nseg=1
+                all nseg consistent under assumption of dx=100 and nseg=L/dx+1
+                Greatest dlambda is 0.0347329 at sTC[0].soma[0] with nseg=1
+                nseg not consistent under constant dlambda=0.03 assumption
+            * 11 inserted mechanisms
+                Ra = 100
+                cm = 1
+                * pas
+                    g_pas = 1e-005
+                    e_pas = -70
+                ena = 50
+                ek = -100
+                * hh2
+                    gnabar_hh2 = 0.09
+                    gkbar_hh2 = 0.01
+                    vtraub_hh2 = -25
+                ca_ion
+                * it
+                    gcabar_it = 0.002
+                    shift_it = 2
+                eh = -40
+                * iar
+                    ghbar_iar = 1.5e-005
+                    shift_iar = 0
+                * cad
+                    depth_cad = 1
+                    taur_cad = 5
+                    cainf_cad = 0.00024
+                    kt_cad = 0
+                    kd_cad = 0
+            ModelViewParmSubset[1] (1 sections)
+            * sTC[0].soma[0] {
+                    Ra = 100
+                    cm = 1
+                    g_pas = 1e-005
+                    e_pas = -70
+                    ena = 50
+                    ek = -100
+                    gnabar_hh2 = 0.09
+                    gkbar_hh2 = 0.01
+                    vtraub_hh2 = -25
+                    gcabar_it = 0.002
+                    shift_it = 2
+                    eh = -40
+                    ghbar_iar = 1.5e-005
+                    shift_iar = 0
+                    depth_cad = 1
+                    taur_cad = 5
+                    cainf_cad = 0.00024
+                    kt_cad = 0
+                    kd_cad = 0
+                }
+            * 6 Point Processes
+                * 2 IClamp
+                    del = 0
+                    * 2 dur
+                        1 dur = 0
+                        1 dur = 1500
+                    * 2 amp
+                        1 amp = -0.0743902
+                        1 amp = 0
+                * 1 SEClamp
+                    rs = 0.01
+                    dur1 = 0
+                    amp1 = -64
+                    dur2 = 0
+                    amp2 = 0
+                    dur3 = 0
+                    amp3 = 0
+                * 1 GABAa_S
+                    gmax = 0.0085
+                * 1 GABAb_S
+                    gmax = 0
+                * 1 kleak
+                    gmax = 0.00015
+        * sTC
+            1 sections; 1 segments
+            * 1 distinct values of nseg
+                Longest dx is 96 at sTC[0].soma[0] with nseg=1
+                all nseg consistent under assumption of dx=100 and nseg=L/dx+1
+                Greatest dlambda is 0.0347329 at sTC[0].soma[0] with nseg=1
+                nseg not consistent under constant dlambda=0.03 assumption
+            * 11 inserted mechanisms
+                Ra = 100
+                cm = 1
+                * pas
+                    g_pas = 1e-005
+                    e_pas = -70
+                ena = 50
+                ek = -100
+                * hh2
+                    gnabar_hh2 = 0.09
+                    gkbar_hh2 = 0.01
+                    vtraub_hh2 = -25
+                ca_ion
+                * it
+                    gcabar_it = 0.002
+                    shift_it = 2
+                eh = -40
+                * iar
+                    ghbar_iar = 1.5e-005
+                    shift_iar = 0
+                * cad
+                    depth_cad = 1
+                    taur_cad = 5
+                    cainf_cad = 0.00024
+                    kt_cad = 0
+                    kd_cad = 0
+            ModelViewParmSubset[9] (1 sections)
+            * sTC[0].soma[0] {
+                    Ra = 100
+                    cm = 1
+                    g_pas = 1e-005
+                    e_pas = -70
+                    ena = 50
+                    ek = -100
+                    gnabar_hh2 = 0.09
+                    gkbar_hh2 = 0.01
+                    vtraub_hh2 = -25
+                    gcabar_it = 0.002
+                    shift_it = 2
+                    eh = -40
+                    ghbar_iar = 1.5e-005
+                    shift_iar = 0
+                    depth_cad = 1
+                    taur_cad = 5
+                    cainf_cad = 0.00024
+                    kt_cad = 0
+                    kd_cad = 0
+                }
+            * 6 Point Processes
+                * 2 IClamp
+                    del = 0
+                    * 2 dur
+                        1 dur = 0
+                        1 dur = 1500
+                    * 2 amp
+                        1 amp = -0.0743902
+                        1 amp = 0
+                * 1 SEClamp
+                    rs = 0.01
+                    dur1 = 0
+                    amp1 = -64
+                    dur2 = 0
+                    amp2 = 0
+                    dur3 = 0
+                    amp3 = 0
+                * 1 GABAa_S
+                    gmax = 0.0085
+                * 1 GABAb_S
+                    gmax = 0
+                * 1 kleak
+                    gmax = 0.00015
+* 2 artificial cells of 1 base classes
+    2 VecStim
+    Global parameters for Artificial Cells
+* 2 NetCon objects
+    weight = 100
+    delay = 1
+    threshold = 10
+0 LinearMechanism objects
+
+* Density Mechanisms
+    * Mechanisms in use
+        Ra
+        capacitance
+        pas
+        na_ion
+        k_ion
+        hh2
+        ca_ion
+        it
+        h_ion
+        iar
+        cad
+    * Homogeneous Parameters
+        Ra = 100
+        cm = 1
+        g_pas = 1e-005
+        e_pas = -70
+        ena = 50
+        ek = -100
+        gnabar_hh2 = 0.09
+        gkbar_hh2 = 0.01
+        vtraub_hh2 = -25
+        gcabar_it = 0.002
+        shift_it = 2
+        eh = -40
+        ghbar_iar = 1.5e-005
+        shift_iar = 0
+        depth_cad = 1
+        taur_cad = 5
+        cainf_cad = 0.00024
+        kt_cad = 0
+        kd_cad = 0
+    Heterogeneous Parameters
+    * Global parameters for density mechanisms
+        * na_ion
+            nai0_na_ion = 10
+            nao0_na_ion = 140
+        * k_ion
+            ki0_k_ion = 54.4
+            ko0_k_ion = 2.5
+        * hh2
+            kshift_hh2 = 0
+            nashift_hh2 = 0
+        * ca_ion
+            cai0_ca_ion = 5e-005
+            cao0_ca_ion = 2
+        * it
+            temperature_it = 36
+            q10_it = 3
+        * h_ion
+            hi0_h_ion = 1
+            ho0_h_ion = 1
+        * iar
+            temperature_iar = 36
+            cac_iar = 0.002
+            k2_iar = 0.0004
+            Pc_iar = 0.01
+            k4_iar = 0.001
+            nca_iar = 4
+            nexp_iar = 1
+            ginc_iar = 2
+            taum_iar = 20
+    KSChan definitions for density mechanisms
+* 6 point processes (2 can receive events) of 5 base classes
+    * 6 Point Processes
+        * 2 IClamp
+            del = 0
+            * 2 dur
+                1 dur = 0
+                1 dur = 1500
+            * 2 amp
+                1 amp = -0.0743902
+                1 amp = 0
+        * 1 SEClamp
+            rs = 0.01
+            dur1 = 0
+            amp1 = -64
+            dur2 = 0
+            amp2 = 0
+            dur3 = 0
+            amp3 = 0
+        * 1 GABAa_S
+            gmax = 0.0085
+        * 1 GABAb_S
+            gmax = 0
+        * 1 kleak
+            gmax = 0.00015
+    * Global parameters for Point Processes
+        * GABAa_S
+            Cmax_GABAa_S = 0.5
+            Cdur_GABAa_S = 0.3
+            Alpha_GABAa_S = 20
+            Beta_GABAa_S = 0.162
+            Erev_GABAa_S = -85
+            Deadtime_GABAa_S = 1
+            temperature_GABAa_S = 36
+            q10_GABAa_S = 2.1
+            exptemp_GABAa_S = 34
+            Rinf_GABAa_S = 0.984058
+            Rtau_GABAa_S = 0.0848354
+            usetable_GABAa_S = 1
+        * GABAb_S
+            Cmax_GABAb_S = 0.5
+            Cdur_GABAb_S = 0.3
+            Deadtime_GABAb_S = 1
+            K1_GABAb_S = 0.09
+            K2_GABAb_S = 0.0012
+            K3_GABAb_S = 0.18
+            K4_GABAb_S = 0.034
+            KD_GABAb_S = 100
+            n_GABAb_S = 4
+            Erev_GABAb_S = -95
+            temperature_GABAb_S = 36
+            q10_GABAb_S = 2.065
+            exptemp_GABAb_S = 34
+        * kleak
+            Erev_kleak = -100
+    KSChan definitions for Point Processes

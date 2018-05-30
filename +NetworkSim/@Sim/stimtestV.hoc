@@ -1,0 +1,103 @@
+{load_file("nrngui.hoc")}
+
+//----------------------------------------------------------------------------
+//  Setup variables
+//----------------------------------------------------------------------------
+
+// Passed values
+dt = dt_arg
+v_init = v_init_arg
+celsius = celsius_arg
+tstop = tstop_arg
+
+// Base settings
+objref fh // file handle
+synapsVectorSize = 3
+steps_per_ms = 1/dt
+
+//----------------------------------------------------------------------------
+//  Setup Cells
+//----------------------------------------------------------------------------
+
+{load_file("TC.tem")}
+{load_file("RE.tem")}
+
+objectvar TestCell
+if (CellType == 1){
+    TestCell = new sTC(temperature_it, temperature_ih)
+    TestCell.soma.ghbar_iar = 1.5e-5
+    // TestCell.soma.ghbar_iar = 2e-5
+    TestCell.kl.gmax = k_leak
+}
+if (CellType == 2){
+    TestCell = new sRE(temperature_it2, leak_g, cadecayTau, cac_sk, gkbar_sk, gmax_it2, kshift)
+}
+
+//----------------------------------------------------------------------------
+//  IClamp
+//----------------------------------------------------------------------------
+
+objref stim, baseStim
+
+objref vc
+TestCell.soma vc = new SEClamp(0.5)
+vc.rs = 0.01
+vc.dur1 = tstop
+vc.amp1= baseStimPotential
+
+run()
+
+TestCell.soma baseStim = new IClamp(0.5)
+baseStim.del = 0
+baseStim.dur = tstop
+baseStim.amp = vc.i
+vc.dur1 = 0.0
+
+print vc.i
+
+TestCell.soma stim = new IClamp(0.5)
+stim.del = stimDelay
+stim.dur = stimLength
+stim.amp = stimAmp //0.04
+
+//----------------------------------------------------------------------------
+//  Setup recording
+//----------------------------------------------------------------------------
+
+objref CellRecord
+CellRecord = new Vector()
+{CellRecord.record(&TestCell.soma.v(0.5), dt)}
+
+objref TcurrentRecord
+TcurrentRecord = new Vector()
+{TcurrentRecord.record(&TestCell.soma.ica(0.5), dt)}
+
+
+
+//----------------------------------------------------------------------------
+//  RUN
+//----------------------------------------------------------------------------
+
+init()
+run()
+
+//----------------------------------------------------------------------------
+//  Write to file
+//----------------------------------------------------------------------------
+
+objref tempmatrix
+
+fh = new File()
+{fh.wopen("stim_test.txt")}
+tempmatrix = new Matrix()
+{tempmatrix.resize(CellRecord.size(), 2)}
+{tempmatrix.setcol(0, CellRecord)}
+{tempmatrix.setcol(1, TcurrentRecord)}
+{tempmatrix.fprint(0, fh, " %g")}
+{fh.close}
+
+//----------------------------------------------------------------------------
+//  DONE
+//----------------------------------------------------------------------------
+
+print " DONE "

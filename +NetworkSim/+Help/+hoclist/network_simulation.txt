@@ -1,0 +1,9 @@
+  network_simulation.hoc (default)
+    Network simulation based on the structure of the Destexhe model
+    Parameters
+        None
+    Output files
+        TC_results.txt - Matrix containing the membrane potentials
+                         of every TC cell in the network
+        nRT_results.txt - Matrix containing the membrane potentials
+                          of every nRT cell in the network

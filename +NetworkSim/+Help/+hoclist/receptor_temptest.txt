@@ -1,0 +1,9 @@
+  receptor_temptest.hoc
+    Test for the temperature dependance of receptors
+    Parameters
+      ReceptorType - 1 = AMPA, 2 = GABAa, 3 = GABAb
+    Output files
+      receptor_test.txt - Matrix containing the results in columns
+                          1 - Current of the receptor
+                          2 - Input cell membrane potential
+                          3 - Output cell membrane potential

@@ -1,0 +1,10 @@
+{hoc_stdout("settings.log")}
+forall psection()
+{hoc_stdout()}
+
+{load_file("mview.hoc")}
+objref m
+m = new ModelView(0)
+{m.textp("settings_extended.log")}
+{m.destroy()}
+objref m

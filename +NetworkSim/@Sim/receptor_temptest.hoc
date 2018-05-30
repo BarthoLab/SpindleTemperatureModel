@@ -1,0 +1,132 @@
+{load_file("nrngui.hoc")}
+
+//----------------------------------------------------------------------------
+//  Setup variables
+//----------------------------------------------------------------------------
+
+// Passed values
+dt = dt_arg
+v_init = v_init_arg
+celsius = celsius_arg
+tstop = tstop_arg
+
+// Base settings
+objref fh // file handle
+synapsVectorSize = 3
+steps_per_ms = 1/dt
+
+//----------------------------------------------------------------------------
+//  Setup Cells
+//----------------------------------------------------------------------------
+
+{load_file("TC.tem")}
+
+objectvar InputCell, OutputCell
+InputCell = new sTC(temperature_it, temperature_ih)
+OutputCell = new sTC(temperature_it, temperature_ih)
+objref currentNetCon
+
+//----------------------------------------------------------------------------
+//  Receptor
+//----------------------------------------------------------------------------
+
+objref Receptor
+if (ReceptorType == 1){
+    Receptor = new AMPA_S()
+}
+if (ReceptorType == 2){
+    Receptor = new GABAa_S()
+}
+if (ReceptorType == 3){
+    Receptor = new GABAb_S()
+}
+
+OutputCell.soma Receptor.loc(0.5)
+// setpointer Receptor.pre, InputCell.soma.v
+InputCell.soma currentNetCon = new NetCon(&v(0.5), Receptor)
+
+Receptor.gmax = 0.02
+
+if (ReceptorType == 3){
+    Receptor.gmax = 0.04
+}
+
+//AMPA
+Alpha_AMPA_S = 0.94		// kinetics from simplex with short pulses
+Beta_AMPA_S = 0.18
+Cmax_AMPA_S = 0.5
+Cdur_AMPA_S = 0.3
+Erev_AMPA_S = 0
+temperature_AMPA_S = temperature_ampa
+
+//GABAa
+Alpha_GABAa_S = 20		// from diffusion model
+Beta_GABAa_S = 0.162
+Cmax_GABAa_S = 0.5		// short pulses
+Cdur_GABAa_S = 0.3
+Erev_GABAa_S = -85		// Rinzel's Erev
+temperature_GABAa_S = temperature_gabaa
+
+//GABAb
+K1_GABAb_S	= 0.09	//	(/ms mM) forward binding rate to receptor
+K2_GABAb_S	= 0.0012 //	(/ms)	backward (unbinding) rate of receptor
+K3_GABAb_S	= 0.18 //	(/ms)	rate of G-protein production
+K4_GABAb_S	= 0.034 //	(/ms)	rate of G-protein decay
+KD_GABAb_S	= 100	//		dissociation constant of K+ channel
+n_GABAb_S	= 4	//		nb of binding sites of G-protein on K+
+Erev_GABAb_S	= -95	//	(mV)	reversal potential (E_K)
+Cmax_GABAb_S = 0.5	// short pulses
+Cdur_GABAb_S = 0.3
+temperature_GABAb_S = temperature_gabab
+
+//----------------------------------------------------------------------------
+//  Setup recording
+//----------------------------------------------------------------------------
+
+InputCell.soma.ghbar_iar = 2e-5
+InputCell.kl.gmax = 0.0027
+
+OutputCell.soma.ghbar_iar = 2e-5	// shorter interspindle period
+OutputCell.kl.gmax = 0.005
+
+objref InputRecord
+InputRecord = new Vector()
+{InputRecord.record(&InputCell.soma.v(0.5), dt)}
+
+objref OutputRecord
+OutputRecord = new Vector()
+{OutputRecord.record(&OutputCell.soma.v(0.5), dt)}
+
+objref ReceptorRecord
+ReceptorRecord = new Vector()
+{ReceptorRecord.record(&Receptor.i, dt)}
+
+
+//----------------------------------------------------------------------------
+//  RUN
+//----------------------------------------------------------------------------
+
+init()
+run()
+
+//----------------------------------------------------------------------------
+//  Write to file
+//----------------------------------------------------------------------------
+
+objref tempmatrix
+
+fh = new File()
+{fh.wopen("receptor_test.txt")}
+tempmatrix = new Matrix()
+{tempmatrix.resize(ReceptorRecord.size(), 3)}
+{tempmatrix.setcol(0, ReceptorRecord)}
+{tempmatrix.setcol(1, InputRecord)}
+{tempmatrix.setcol(2, OutputRecord)}
+{tempmatrix.fprint(0, fh, " %g")}
+{fh.close}
+
+//----------------------------------------------------------------------------
+//  DONE
+//----------------------------------------------------------------------------
+
+print " DONE "
