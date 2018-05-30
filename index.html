@@ -107,12 +107,12 @@
     </table>
     <h2 id="Model changes">Model changes</h2>
     <p>
-        We implemented the core of the Destexhe model from 1996 in Neuron and used parallelized MatLab solutions to control and evaluate multiple instances of our model on a wide set of parameters. The synaptic currents between TC and nRT cells were modelled by AMPA and GABAa receptors. The original model was based on electrophysiological measurements in ferret thalamic slices, but there is no definitive sign of GABAb receptors [TODO] or nRT to nRT connections [TODO] in mice, thus we excluded them from our simulation. We expanded the functionality of the receptor models to include temperature dependence. The Q10 value of AMPA and GABAa receptors were estimated based on the work of Michael Postlethwaite [<a href="#ref2">2</a>] and [<a href="#ref3">3</a>] respectively.
-    </p>
-    <p>
-        The removed nRT to nRT synapses resulted in increased spike counts (approximately 30-40) in the nRT bursts. To compensate for this change we included a small conductance K+ current based on a former work of the original author [<a href="#ref4">4</a>]. The parameters of the current were fine-tuned to fit our network model. We also implemented a Ca pump instead of the original Ca decay and changed the Ca flow according to the observations of [TODO].
-    </p>
+        For the purpose of this study we adapted the network model of thalamocortical (TC) and thalamic reticular (nRT) cells, constructed by Destexhe et al (1996) [<a href="#ref1">1</a>] in the NEURON modeling environment [<a href="#ref2">2</a>].
+    </p>    
     <h3 id="Cells">Cells</h3>    
+    <p>
+        Single compartment TC and NRT cell membrane potential was governed by the following equations:
+    </p>
     $$C_m \dot{V}_{TC}=-g_L (V_{TC}-E_L)-I_{KL}-I_T-I_h-I_{Na}-I_K-I_            {{
 GABA}_A}$$
     $$C_m \dot{V}_{nRT}=-g_L (V_{nRT}-E_L)-I_{T2}-I_{CAN}-I_{AHP}-I_{Na}-I_K-I_{{GABA}_A}$$
@@ -151,7 +151,7 @@ GABA}_A}$$
     </details>
     <h3 id="Receptors">Receptors</h3>
     <p>
-        TC cells activated nRT cell via AMPA receptors while nRT cells inhibited TC cell via GABA-A receptors. We disregarded GABA-B receptors since their blockade hardly altered spindle oscillations experimentally [4], [5]. Synaptic currents were based on the models constructed by Destexhe et al [1] supplemented with temperature dependency. Both currents can be described by the following equations:
+        TC cells activated nRT cell via AMPA receptors while nRT cells inhibited TC cell via GABA-A receptors. We disregarded GABA-B receptors since their blockade hardly altered spindle oscillations experimentally [<a href="#ref3">3</a>], [<a href="#ref4">4</a>]. Synaptic currents were based on the models constructed by Destexhe et al [<a href="#ref1">1</a>] supplemented with temperature dependency. Both currents can be described by the following equations:
     </p>
     $$I_{syn}=\overline{g}_{syn}r(V-E_{syn})$$
     $$\dfrac{dr}{dt}=\alpha{[C]}(1-r)-\beta{r}$$
@@ -163,22 +163,25 @@ GABA}_A}$$
 }}{\alpha{C}_{max}+\beta}$$
     $$\varphi_h=Q_{10}^{\dfrac{T-T_{exp}}{10\,^{\circ}\mathrm{C}}}$$
     <p>
-        Where \(\tau_{r}\) is the time constant of channel binding, \(r_{\infty}\) is the steady-state fraction of open channels and \(\varphi_h\) is the temperature dependent multiplier that was added to the original model. \(C_{max}\) is the maximum concentration of transmitters, \(T\) is the actual temperature and \(T_{exp}\) is the experimental temperature the binding rates got measured on. The temperature coefficients (\(Q_{10}\)) of AMPA and GABA-A receptors were estimated based on the work of Postlethwaite et al. (2007) [6] and Otis and Mody (1992) [7], respectively.
+        Where \(\tau_{r}\) is the time constant of channel binding, \(r_{\infty}\) is the steady-state fraction of open channels and \(\varphi_h\) is the temperature dependent multiplier that was added to the original model. \(C_{max}\) is the maximum concentration of transmitters, \(T\) is the actual temperature and \(T_{exp}\) is the experimental temperature the binding rates got measured on. The temperature coefficients (\(Q_{10}\)) of AMPA and GABA-A receptors were estimated based on the work of Postlethwaite et al. (2007) [<a href="#ref5">5</a>] and Otis and Mody (1992) [<a href="#ref6">6</a>], respectively.
     </p>
     <p>
-        An analytical expression exists for the fraction of open receptors based on the phase of the pulse. For further details on the deduction of the following equations refer to the original model. [1]
+        An analytical expression exists for the fraction of open receptors based on the phase of the pulse. For further details on the deduction of the following equations refer to the original model. [<a href="#ref1">1</a>]
     </p>    
     $$r_{ON}=r_{\infty}+(r-r_{\infty})exp(-\dfrac{\varphi_h{\Delta{t}}}{\tau_{r}})$$
     $$r_{OFF}={r}{\;}{exp(-\varphi_h{\beta}{\Delta{t}})}$$
     <p>
-        Conductances were adjusted to reproduce spindle oscillation with the characteristics described by Bartho et al (2014). [8] Model cells matched the firing patterns of both TC and nRT cells, and spindles generated by the model reproduced waxing and waning behavior, but were slightly longer than the measured counterparts.
+        Conductances were adjusted to reproduce spindle oscillation with the characteristics described by Bartho et al (2014). [<a href="#ref7">7</a>] Model cells matched the firing patterns of both TC and nRT cells, and spindles generated by the model reproduced waxing and waning behavior, but were slightly longer than the measured counterparts.
     </p>
     <h2>References</h2>
     <ol>
         <li id="ref1">Destexhe, Alain, et al. "Ionic mechanisms underlying synchronized oscillations and propagating waves in a model of ferret thalamic slices." Journal of neurophysiology 76.3 (1996): 2049-2070.</li>
-        <li id="ref2">Postlethwaite, Michael, et al. "Acceleration of AMPA receptor kinetics underlies temperature‐dependent changes in synaptic strength at the rat calyx of Held." The Journal of physiology 579.1 (2007): 69-84.</li>
-        <li id="ref3">Otis, T. S., and I. Mody. "Modulation of decay kinetics and frequency of GABA A receptor-mediated spontaneous inhibitory postsynaptic currents in hippocampal neurons." Neuroscience 49.1 (1992): 13-32.</li>
-        <li id="ref4">Destexhe, Alain, et al. "A model of spindle rhythmicity in the isolated thalamic reticular nucleus." Journal of neurophysiology 72.2 (1994): 803-818.</li>
+        <li id="ref2">Hines, Michael, and Ted Carnevale. "NEURON simulation environment." Encyclopedia of Computational Neuroscience (2015): 2012-2017.</li>        
+        <li id="ref3">Bal, T., M. von Krosigk, and D. A. McCormick. 1995. “Role of the Ferret Perigeniculate Nucleus in the Generation of Synchronized Oscillations in Vitro.” The Journal of Physiology 483(3):665–85.</li>
+        <li id="ref4">von Krosigk, Marcus, Thierry Bal, and David A. McCormick. "Cellular mechanisms of a synchronized oscillation in the thalamus." Science 261.5119 (1993): 361-364.</li>
+        <li id="ref5">Postlethwaite, Michael, et al. "Acceleration of AMPA receptor kinetics underlies temperature‐dependent changes in synaptic strength at the rat calyx of Held." The Journal of physiology 579.1 (2007): 69-84.</li>
+        <li id="ref6">Otis, T. S., and I. Mody. "Modulation of decay kinetics and frequency of GABAA receptor-mediated spontaneous inhibitory postsynaptic currents in hippocampal neurons." Neuroscience 49.1 (1992): 13-32.</li>
+        <li id="ref7">Barthó, Péter, et al. "Ongoing network state controls the length of sleep spindles via inhibitory activity." Neuron 82.6 (2014): 1367-1379.</li>
     </ol>
 </body>
 </html>
