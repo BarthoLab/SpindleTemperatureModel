@@ -57,22 +57,16 @@
         </li>
     </ul>    
 
-    <h2 id="Network">Network</h2>    
+    <h2 id="Network">Network</h2>
+    <h3 id="Network topology">Network topology</h3>
     <p>
-        ???
-        Network
-        100 TC
-        20 nRT
+        For the construction of the model we interpret the connections of the network as a bipartite directional graph where the two sets of nodes are the TC and nRT cells. We used a 1-dimensional network: both sets of cells are on a one unit long line with equal distances between them, and the two lines of the two sets are parallel to each other. For the sake of reproducibility we used a deterministic random number generator based on the Mersenne Twister algorithm to choose target cells. Our examined networks consist of 100 TC cells and 20 nRT cells. Each TC cell targets 8 different nRT cells from the closest 20, based on normal distribution. The nRT cells target 20 different TCs from the closest 50. We did not allow reciprocal connections in our networks. The algorithm creates the network without any consideration of the reciprocal rule, and it trims these pairs after the completion of the structure. In the case of bidirectional TC and nRT connections, one is removed based on a coin flip.
         <details>
             <summary>Network structure</summary>
             <div class="img-resize">
                 <img src="Figures\network.svg" title="Topography of a random generated neural network containing 100 TC and 20 nRT cells" />
             </div>
         </details>
-    </p>
-    <h3 id="Network topology">Network topology</h3>
-    <p>
-        Our simulated thalamic networks typically consist of over 100 individual cells thus the cell networks should be established programmatically. The structure of a network is based on deterministic random generation for the sake of reproducibility. We interpret the connections of the network as a bipartite directional graph where the two sets of nodes are the TC and nRT cells. We used a parallel topology for our networks: both set of cells are on a one unit long line with equal distances between them, and the two sets are parallel to each other. We also implemented a circular approach where instead of lines the two sets are placed on concentric circles.
     </p>
     <h3 id="Network generation algorithm">Network generation algorithm</h3>
     <p>
