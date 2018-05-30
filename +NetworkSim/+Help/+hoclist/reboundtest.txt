@@ -1,0 +1,9 @@
+  reboundtest.hoc
+    Simulation of the effect of a simple rebound (Obsolete)
+    Parameters
+        CellType - 1 = TC, 2 = nRT
+        stim_amp - amplitude of constant stimulus through IClamp
+        ncVec    - vector of input spikes
+    Output files
+        rebound_test.txt - Vector containing the membrane potentials
+                           of the cell

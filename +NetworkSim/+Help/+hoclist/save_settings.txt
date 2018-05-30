@@ -1,0 +1,6 @@
+  save_settings.hoc
+    NOT FOR SIM USE
+    If included in a hoc file, automatically logs the settings into the 
+    following files:
+        settings.log
+        settings_extended.log

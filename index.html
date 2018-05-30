@@ -1,0 +1,184 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Network Simulation</title>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
+    <style type="text/css">
+        body {
+        background-color: white;
+        font-family: 'Open Sans', sans-serif;
+        padding: 10px;
+        }
+
+        p {
+        text-align: justify;
+        }
+
+        .img-side-by-side {
+        width: 100vw;
+        float: left;
+        }
+
+        .img-side-by-side img {
+        width: 48%;
+        }
+
+        .img-resize {
+        width: 80vw;
+        }
+
+        img {
+        max-width: 100%;
+        height: auto;
+        max-height: 100%;
+        }
+    </style>
+</head>
+<body>    
+    <h1>Network Simulation</h1>
+    <ul>
+        <li>
+            <a href="#Network">Network</a>
+            <ul>
+                <li><a href="#Network topology">Network topology</a></li>
+                <li><a href="#Network generation algorithm">Network generation algorithm</a></li>
+                <li><a href="#No reciprocal connections allowed">No reciprocal connections allowed</a></li>
+                <li><a href="#Synaptic strength">Synaptic strength</a></li>
+                <li><a href="#Test network settings">Test network settings</a></li>
+            </ul>
+        </li>        
+        <li>
+            <a href="#Model changes">Model changes</a>
+            <ul>
+                <li><a href="#Cells">Cells</a></li>
+                <li><a href="#Receptors">Receptors</a></li>
+            </ul>
+        </li>
+    </ul>    
+
+    <h2 id="Network">Network</h2>    
+    <p>
+        ???
+        Network
+        100 TC
+        20 nRT
+    </p>
+    <h3 id="Network topology">Network topology</h3>
+    <p>
+        Our simulated thalamic networks typically consist of over 100 individual cells thus the cell networks should be established programmatically. The structure of a network is based on deterministic random generation for the sake of reproducibility. We interpret the connections of the network as a bipartite directional graph where the two sets of nodes are the TC and nRT cells. We used a parallel topology for our networks: both set of cells are on a one unit long line with equal distances between them, and the two sets are parallel to each other. We also implemented a circular approach where instead of lines the two sets are placed on concentric circles.
+    </p>
+    <h3 id="Network generation algorithm">Network generation algorithm</h3>
+    <p>
+        The network generation algorithm first creates the set of cells based on the given parameters than iterates through every one of them. At each iteration step, the algorithm choses the <b>n</b> closest cells from the opposite set than selects <b>m</b> ≤ <b>n</b> cells that will get an input from the currently iterated one. The <b>m</b> cells are selected via a combination that is based on normal distribution in a way that cells closer to the iterated one have a higher chance to be selected.
+    </p>
+    <details>
+        <summary>Circular and non-circular connection matrix</summary>
+        <div class="img-side-by-side">
+            <img src="Figures\circular.jpg" title="Circular connection matrix" />
+            <img src="Figures\non-circular.jpg" title="Non-circular connection matrix" />
+        </div>
+    </details>
+    <details>
+        <summary>Number of connections in a non-circular networ</summary>
+        <div class="img-side-by-side">
+            <img src="Figures\TC_connections.jpg" title="TC connections" />
+            <img src="Figures\nRT connections.jpg" title="nRT connections" />
+        </div>
+    </details>
+    <h3 id="No reciprocal connections allowed">No reciprocal connections allowed</h3>
+    <p>
+        The networks do not allow reciprocal connections between the cells, so if a TC cell gives an input to an nRT cell it cannot receive one from the same cell, and vice-versa. The algorithm creates the network without any consideration of the reciprocal rule, and it trims these pairs after the completion of the network. If a TC and nRT pair are connected both ways, one of the directions is removed based on a coin flip.
+    </p>
+    <h3 id="Synaptic strength">Synaptic strength</h3>
+    <p>
+        The strength of a given synaptic connection in the network is given by the weight associated with it. Connection weights are normally distributed with a mean as the default synaptic strength. This approach makes it theoretically possible to create topologically analogous networks that have completely different behaviors because of the different synapses.
+    </p>
+    <h3 id="Test network settings">Test network settings</h3>
+    <table>
+        <tr><td>Number of TC cells</td><td>100</td></tr>
+        <tr><td>Number of nRT cells</td><td>20</td></tr>
+        <tr><td>Number of closest TC to nRT connections to choose from</td><td>20</td></tr>
+        <tr><td>Number of closest TC to nRT connections to actually choose</td><td>8</td></tr>
+        <tr><td>Number of closest nRT to TC connections to choose from</td><td>50</td></tr>
+        <tr><td>Number of closest nRT to TC connections to actually choose</td><td>20</td></tr>
+        <tr><td>AllowAutoCorrelation</td><td>False</td></tr>
+        <tr><td>Circular</td><td>False</td></tr>
+    </table>
+    <h2 id="Model changes">Model changes</h2>
+    <p>
+        We implemented the core of the Destexhe model from 1996 in Neuron and used parallelized MatLab solutions to control and evaluate multiple instances of our model on a wide set of parameters. The synaptic currents between TC and nRT cells were modelled by AMPA and GABAa receptors. The original model was based on electrophysiological measurements in ferret thalamic slices, but there is no definitive sign of GABAb receptors [TODO] or nRT to nRT connections [TODO] in mice, thus we excluded them from our simulation. We expanded the functionality of the receptor models to include temperature dependence. The Q10 value of AMPA and GABAa receptors were estimated based on the work of Michael Postlethwaite [<a href="#ref2">2</a>] and [<a href="#ref3">3</a>] respectively.
+    </p>
+    <p>
+        The removed nRT to nRT synapses resulted in increased spike counts (approximately 30-40) in the nRT bursts. To compensate for this change we included a small conductance K+ current based on a former work of the original author [<a href="#ref4">4</a>]. The parameters of the current were fine-tuned to fit our network model. We also implemented a Ca pump instead of the original Ca decay and changed the Ca flow according to the observations of [TODO].
+    </p>
+    <h3 id="Cells">Cells</h3>    
+    $$C_m \dot{V}_{TC}=-g_L (V_{TC}-E_L)-I_{KL}-I_T-I_h-I_{Na}-I_K-I_            {{
+GABA}_A}$$
+    $$C_m \dot{V}_{nRT}=-g_L (V_{nRT}-E_L)-I_{T2}-I_{CAN}-I_{AHP}-I_{Na}-I_K-I_{{GABA}_A}$$
+    <details>
+        <summary>TC hyperpolarization</summary>
+        <div class="img-resize">
+            <img src="Figures\TC_rebound_after_hyperpolarization.jpg" alt="TC cell reaction to hyperpolarization based on temperature" />
+        </div>
+    </details>
+    <details><h2 id="nRT">nRT cells</h2>
+        <summary>TC GABAa input</summary>
+        <div class="img-resize">
+            <img src="Figures\TC_rebound_after_GABAA_input.jpg" alt="TC cell reaction to IPSP based on temperature" />
+        </div>
+    </details>
+    <details>
+        <summary>nRT hyperpolarization</summary>
+        <div class="img-resize">
+            <img src="Figures\NRT_rebound_after_hyperpolarization.jpg" title="nRT cell reaction to hyperpolarization based on temperature" />
+        </div>
+    </details>
+    <details>
+        <summary>nRT GABAa input</summary>
+        <div class="img-resize">
+            <img src="Figures\NRT_firing_after_AMPA_input.jpg" title="nRT cell reaction to EPSP based on temperature" />
+        </div>
+    </details>
+    <p>
+        To support our findings, we created a thalamic network model consisting of single-compartment thalamocortical (<a href="TC">TC</a>) and thalamic reticular (<a href="nRT">nRT</a>) cells based on the work of Alain Destexhe [<a href="#ref1">1</a>]. The original Destexhe model was capable of producing sustained oscillations through the interaction of the TC and nRT cells. TC cells elicited AMPA-mediated EPSPs in the nRT cells while nRT cells inhibited the TC cells through a mixture of GABAa and GABAb receptors. Thanks to the characteristics of the T current – found in both cell types – a sufficiently strong IPSP could elicit a rebound burst from the TC cell. Following an EPSP the T current in the nRT cells results in an oscillatory bursting behavior that stops after a few bursts. The TC rebounds refresh the nRT burst train thus keeping the oscillation of the network alive.
+    </p>
+    <details>
+        <summary>nRT rebound bursts</summary>
+        <div class="img-resize">
+            <img src="Figures/nRT_bursting.jpg" title="nRT rebound bursting behaviour on different starting membrane potentials after short inhbition" />
+        </div>
+    </details>
+    <h3 id="Receptors">Receptors</h3>
+    <p>
+        TC cells activated nRT cell via AMPA receptors while nRT cells inhibited TC cell via GABA-A receptors. We disregarded GABA-B receptors since their blockade hardly altered spindle oscillations experimentally [4], [5]. Synaptic currents were based on the models constructed by Destexhe et al [1] supplemented with temperature dependency. Both currents can be described by the following equations:
+    </p>
+    $$I_{syn}=\overline{g}_{syn}r(V-E_{syn})$$
+    $$\dfrac{dr}{dt}=\alpha{[C]}(1-r)-\beta{r}$$
+    <p>
+        Where \(syn\) can be substituted for AMPA or GABA-A and \(I_{syn}\) is the synaptic current, \(g_{syn}\) is the maximal conductance and \(E_{syn}\) is the reversal potential respectively. The fraction of open channels is denoted by \(r\) and \([C]\) is the concentration of neurotransmitters in the synaptic cleft, while \(\alpha\) and \(\beta\) are the forward and backward binding rates of neurotransmitters for the given receptor type. We also define the following variables:
+    </p>
+    $$\tau_{r}=\dfrac{1}{\alpha{C}_{max}+\beta}$$
+    $$r_{\infty}=\dfrac{\alpha{C}_{max}}{\alpha{C}_{max}+\beta}$$
+    $$\varphi_h=Q_{10}^{\dfrac{T-T_{exp}}{10\,^{\circ}\mathrm{C}}}$$
+    <p>
+        Where \(\tau_{r}\) is the time constant of channel binding, \(r_{\infty}\) is the steady-state fraction of open channels and \(\varphi_h\) is the temperature dependent multiplier that was added to the original model. \(C_{max}\) is the maximum concentration of transmitters, \(T\) is the actual temperature and \(T_{exp}\) is the experimental temperature the binding rates got measured on. The temperature coefficients (\(Q_{10}\)) of AMPA and GABA-A receptors were estimated based on the work of Postlethwaite et al. (2007) [6] and Otis and Mody (1992) [7], respectively.
+    </p>
+    <p>
+        An analytical expression exists for the fraction of open receptors based on the phase of the pulse. For further details on the deduction of the following equations refer to the original model. [1]
+    </p>    
+    $$r_{ON}=r_{\infty}+(r-r_{\infty})exp(-\dfrac{\varphi_h{\Delta{t}}}{\tau_{r}})$$
+    $$r_{OFF}={r}{\;}{exp(-\varphi_h{\beta}{\Delta{t}})}$$
+    <p>
+        Conductances were adjusted to reproduce spindle oscillation with the characteristics described by Bartho et al (2014). [8] Model cells matched the firing patterns of both TC and nRT cells, and spindles generated by the model reproduced waxing and waning behavior, but were slightly longer than the measured counterparts.
+    </p>
+    <h2>References</h2>
+    <ol>
+        <li id="ref1">Destexhe, Alain, et al. "Ionic mechanisms underlying synchronized oscillations and propagating waves in a model of ferret thalamic slices." Journal of neurophysiology 76.3 (1996): 2049-2070.</li>
+        <li id="ref2">Postlethwaite, Michael, et al. "Acceleration of AMPA receptor kinetics underlies temperature‐dependent changes in synaptic strength at the rat calyx of Held." The Journal of physiology 579.1 (2007): 69-84.</li>
+        <li id="ref3">Otis, T. S., and I. Mody. "Modulation of decay kinetics and frequency of GABA A receptor-mediated spontaneous inhibitory postsynaptic currents in hippocampal neurons." Neuroscience 49.1 (1992): 13-32.</li>
+        <li id="ref4">Destexhe, Alain, et al. "A model of spindle rhythmicity in the isolated thalamic reticular nucleus." Journal of neurophysiology 72.2 (1994): 803-818.</li>
+    </ol>
+</body>
+</html>
+    

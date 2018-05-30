@@ -1,0 +1,133 @@
+/*--------------------------------------------------------------
+	TEMPLATE FILE FOR DEFINING RETICULAR NEURONS
+	--------------------------------------------
+
+	One compartment model and currents derived from:
+
+	Destexhe, A., Contreras, D., Sejnowski, T.J. and Steriade, M.
+	A model of spindle rhythmicity in the isolated thalamic reticular
+	nucleus.  J. Neurophysiol. 72: 803-818, 1994.
+
+	Destexhe, A., Contreras, D., Steriade, M., Sejnowski, T.J.,
+	and Huguenard, J.R.  In vivo, in vitro and computational analysis of 
+	dendritic calcium currents in thalamic reticular neurons.  
+	Journal of Neuroscience 16: 169-185, 1996.
+
+	Modifications:
+
+	- passive parameters estimated from simplex
+	- IT2: Q10=2.5, strong conductance for broad bursts
+	- no IK[Ca], no ICAN
+	- Ca++: simple decay only
+
+
+	This model is described in detail in:
+
+	Destexhe, A., Bal, T., McCormick, D.A. and Sejnowski, T.J.
+	Ionic mechanisms underlying synchronized oscillations and propagating
+	waves in a model of ferret thalamic slices. Journal of Neurophysiology
+	76: 2049-2070, 1996.
+	See also http://www.cnl.salk.edu/~alain , http://cns.fmed.ulaval.ca
+
+
+	Alain Destexhe, Salk Institute and Laval University, 1995
+
+--------------------------------------------------------------*/
+
+
+//print " "
+//print " << defining template for one-compartment sRE cell >> "
+//print " "
+
+
+begintemplate sRE		// create a new template object
+public soma
+
+create soma[1]			// one-compartment of 14260 um2
+
+proc init() { local v_potassium, v_sodium
+
+  v_potassium = -95		// potassium reversal potential 
+  v_sodium = 50			// sodium reversal potential 
+  
+  soma {
+	Ra = 100		// geometry 
+	nseg = 1
+	diam = 10
+    L = 31.831
+    cm=1
+
+	insert pas		// leak current 	
+    e_pas = -78
+    g_pas = $2
+
+	insert hh2		// Hodgin-Huxley INa and IK 
+	ek = v_potassium
+	ena = v_sodium	
+    vtraub_hh2 = -55
+    // gnabar_hh2 = 0.1
+    // gnabar_hh2 = 0
+    gnabar_hh2 = 0.06
+	gkbar_hh2 = 0.006
+    kshift_hh2 = $7
+    nashift_hh2 = $7
+
+	insert it2 		// reticular IT current 
+	cai = 2.4e-4 
+	cao = 2 
+	eca = 120 
+	shift_it2 = 2
+	qm_it2 = 2.5		// low q10
+	qh_it2 = 2.5
+	// gcabar_it2 = 0.00175	// strong
+    gcabar_it2 = $6
+    temperature_it2 = $1
+    
+
+/*
+	insert cad		// calcium decay
+	depth_cad = 1
+    //taur_cad = 5
+    //taur_cad = 30    
+    taur_cad = $3    
+	cainf_cad = 2.4e-4
+	kt_cad = 0		// no pump    
+*/
+
+    insert cad_pump		// calcium pump
+	kd_cad_pump = 1e-4
+	kt_cad_pump = 1e-4
+	depth_cad_pump = 1
+	taur_cad_pump = $3
+    
+    // Source: https://senselab.med.yale.edu/modeldb/ShowModel.cshtml?model=3670&file=/NTW_NEW/ICAN.mod#tabs-1
+    // Destexhe SK model 1994
+	insert iahp		// burst IAHP
+	// cac_iahp = 0.025	
+    cac_iahp = $4
+    beta_iahp = 0.005
+	taumin_iahp = 0.1
+	ek=v_potassium
+	// gkbar_iahp = 0.01
+    gkbar_iahp = $5
+  
+	insert ican 		// nonspecific cation current ICAN
+	cac_ican = 0.01
+	beta_ican = 0.002
+	taumin_ican = 0.1
+	en=-20
+    //gbar_ican = 0.00025    	
+    gbar_ican = 0.0004
+
+
+  }
+
+  //print " "
+  //print "<< sRE: passive, INa, IK, ITs, IAHP and Ca++ decay inserted >>"
+  //print " "
+
+}
+endtemplate sRE
+
+
+

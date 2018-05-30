@@ -1,0 +1,21 @@
+sTC[0].soma[0] { nseg=1  L=96  Ra=100
+	/*location 0 attached to cell 0*/
+	/* First segment only */
+	insert morphology { diam=96}
+	insert capacitance { cm=1}
+	insert pas { g_pas=1e-005 e_pas=-70}
+	insert kleak { gmax=0.00015}
+	insert hh2 { gnabar_hh2=0.09 gkbar_hh2=0.01 vtraub_hh2=-25}
+	insert na_ion { ena=50}
+	insert k_ion { ek=-100}
+	insert it { gcabar_it=0.002 shift_it=2}
+	insert iar { ghbar_iar=1.5e-005 shift_iar=0}
+	insert h_ion { eh=-40}
+	insert cad { depth_cad=1 taur_cad=5 cainf_cad=0.00024 kt_cad=0 kd_cad=0}
+	insert ca_ion {}
+	insert GABAa_S { gmax=0.0085}
+	insert GABAb_S { gmax=0}
+	insert SEClamp { rs=0.01 dur1=0 amp1=-64 dur2=0 amp2=0 dur3=0 amp3=0}
+	insert IClamp { del=0 dur=1500 amp=-0.0743902}
+	insert IClamp { del=0 dur=0 amp=0}
+}

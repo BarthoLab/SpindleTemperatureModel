@@ -1,0 +1,12 @@
+  stimtest2cell.hoc
+    Simulation of the effect of a single stimulus on a TC and an nRT cell,
+    where the nRT is connected to TC cell
+    Parameters
+        baseStimPotential - SEClamp sets the base potential on this value
+        stimDelay         - start of IClamp stimulus (ms)
+        stimLength        - length of IClamp stimulus (ms)
+        stimAmp           - amplitude stimulus through IClamp
+    Output files
+        stim_test.txt - Matrix containing the results in columns
+                        1 - Membrane potential of nRT
+                        2 - Membrane potential of TC

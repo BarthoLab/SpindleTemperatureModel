@@ -1,0 +1,414 @@
+{load_file("nrngui.hoc")}
+
+//----------------------------------------------------------------------------
+//  Setup variables
+//----------------------------------------------------------------------------
+
+// Passed values
+dt = dt_arg
+v_init = v_init_arg
+celsius = celsius_arg
+tstop = tstop_arg
+
+// Base settings
+objref fh // file handle
+synapsVectorSize = 3
+steps_per_ms = 1/dt
+objref r
+r = new Random(RandomSeed)
+{r.uniform(1, 1000)}
+
+//----------------------------------------------------------------------------
+//  Create TC cells
+//----------------------------------------------------------------------------
+
+{load_file("TC.tem")}
+
+objectvar TC[TC_count]
+objectvar TC_noise[TC_count]
+objectvar TC_GABAa[TC_count] // ID lists of GABAa receptors
+objectvar TC_GABAb[TC_count] // ID lists of GABAb receptors
+
+for i=0,TC_count-1 {
+  TC[i] = new sTC(temperature_it, temperature_ih)  
+  TC_GABAa[i] = new List()
+  TC_GABAb[i] = new List()
+  if (UseGaussNoise) {
+    TC[i].soma TC_noise[i] = new Gfluct2(0.5)
+    TC_noise[i].g_e0 = 0
+    TC_noise[i].std_e = 0.00005
+    TC_noise[i].tau_e = 0.1
+
+    TC_noise[i].g_i0 = 0    
+    TC_noise[i].std_i = 0
+    TC_noise[i].tau_i = 0
+    
+    TC_noise[i].new_seed(r.repick())
+  }
+}
+
+//----------------------------------------------------------------------------
+//  Create nRT cells
+//----------------------------------------------------------------------------
+
+{load_file("RE.tem")}
+
+objectvar nRT[nRT_count]
+objectvar nRT_noise[nRT_count]
+objectvar nRT_AMPA[nRT_count] // ID lists of AMPA receptors
+
+for i=0,nRT_count-1 {
+  nRT[i] = new sRE(temperature_it2, leak_g, cadecayTau, cac_sk, gkbar_sk, gmax_it2, kshift)
+  nRT_AMPA[i] = new List()
+  if (UseGaussNoise) {
+    nRT[i].soma nRT_noise[i] = new Gfluct2(0.5)
+    nRT_noise[i].g_e0 = 0
+    nRT_noise[i].std_e = 0.00005    
+    nRT_noise[i].tau_e = 0.1
+
+    nRT_noise[i].g_i0 = 0    
+    nRT_noise[i].std_i = 0
+    nRT_noise[i].tau_i = 0
+    
+    nRT_noise[i].new_seed(r.repick())    
+  }
+}
+
+//----------------------------------------------------------------------------
+//  Starting connections
+//----------------------------------------------------------------------------
+
+objref startVector, startStim
+startVector = new Vector(5)
+for i=0,4 {
+    startVector.x(i) = startDelay + i*2
+}
+startStim = new VecStim()
+{startStim.play(startVector)}
+
+//----------------------------------------------------------------------------
+//  Disable settings
+//----------------------------------------------------------------------------
+
+objectvar TC_disable[TC_count]
+if (TC_disable_delay > 0) {    
+    for i=0,TC_count-1 {
+        TC[i].soma TC_disable[i] = new IClamp(0.5)
+        TC_disable[i].del = TC_disable_delay
+        TC_disable[i].dur = tstop - TC_disable[i].del
+        TC_disable[i].amp = -1
+    }
+}
+
+objectvar nRT_disable[nRT_count]
+if (nRT_disable_delay > 0) {    
+    for i=0,nRT_count-1 {
+        nRT[i].soma nRT_disable[i] = new IClamp(0.5)
+        nRT_disable[i].del = nRT_disable_delay
+        nRT_disable[i].dur = tstop - nRT_disable[i].del
+        nRT_disable[i].amp = -1
+    }
+}
+
+//----------------------------------------------------------------------------
+//  Glutamate AMPA receptors in synapses from TC to RE
+//----------------------------------------------------------------------------
+
+fh = new File()
+{fh.ropen(TC_nRT_Edges)}
+
+nbrOfAmpaSynapses = fh.scanvar()
+
+vectorSize = nbrOfAmpaSynapses
+if (nbrOfAmpaSynapses == 0) {
+    vectorSize = 1
+}
+
+objref ampa[vectorSize]      // array holding the AMPA synapses
+objref ampaVec[vectorSize]   // array holding the vectors that hold the input data of the AMPA synapses
+objref ampaNetCon[vectorSize]
+objref startAmpaVec[vectorSize]
+objref startNetCon[vectorSize]
+
+if (nbrOfAmpaSynapses > 0) {
+    currentSynaps = 0
+
+    while (!fh.eof()) {    
+        ampaVec[currentSynaps] = new Vector(synapsVectorSize)    
+        for i = 0,ampaVec[currentSynaps].size()-1	{
+            ampaVec[currentSynaps].x(i) = fh.scanvar()		
+        }
+        ampa[currentSynaps] = new AMPA_S()    
+        nRT[ampaVec[currentSynaps].x(1)].soma ampa[currentSynaps].loc(0.5)          // postsynaptic is nRT         
+        TC[ampaVec[currentSynaps].x(0)].soma ampaNetCon[currentSynaps] = new NetCon(&v(0.5), ampa[currentSynaps]) // presynaptic is TC
+        // ampa[currentSynaps].gmax = ampaVec[currentSynaps].x(2) * 0.2 / (nbrOfAmpaSynapses / TC_count)
+        ampa[currentSynaps].gmax = ampaVec[currentSynaps].x(2) * ampa_gmax // (nbrOfAmpaSynapses / TC_count)
+
+        nRT_AMPA[ampaVec[currentSynaps].x(1)].append(ampa[currentSynaps])
+
+        // Attach stimulus to the nRT cells the Middle! TC is connected to
+        if(ampaVec[currentSynaps].x(0) == int(TC_count/2)){
+            startAmpaVec[currentSynaps] = new AMPA_S()    
+            nRT[ampaVec[currentSynaps].x(1)].soma ampa[currentSynaps].loc(0.5)         // postsynaptic is nRT         
+            startNetCon[currentSynaps] = new NetCon(startStim, ampa[currentSynaps])  // presynaptic NetCon
+        }    
+
+        currentSynaps = currentSynaps + 1
+    }
+
+    Alpha_AMPA_S = 0.94		// kinetics from simplex with short pulses
+    Beta_AMPA_S = 0.18
+    Cmax_AMPA_S = 0.5
+    Cdur_AMPA_S = 0.3
+    Erev_AMPA_S = 0
+    temperature_AMPA_S = temperature_ampa
+
+}
+
+{fh.close}
+
+//----------------------------------------------------------------------------
+//  GABAa receptors in intra-RE synapses
+//----------------------------------------------------------------------------
+
+fh = new File()
+{fh.ropen(nRT_nRT_Edges)}
+
+nbrOfIntraSynapses = fh.scanvar()
+
+vectorSize = nbrOfIntraSynapses
+if (nbrOfIntraSynapses == 0) {
+    vectorSize = 1
+}
+
+objref intra[vectorSize]      // array holding the intra nRT synapses
+objref intraVec[vectorSize]   // array holding the vectors that hold the input data of the intra nRT synapses
+objref intraNetCon[vectorSize]
+
+if (nbrOfIntraSynapses > 0) {
+    currentSynaps = 0
+
+    while (!fh.eof()) {    
+        intraVec[currentSynaps] = new Vector(synapsVectorSize)    
+        for i = 0,intraVec[currentSynaps].size()-1	{
+            intraVec[currentSynaps].x(i) = fh.scanvar()		
+        }
+        intra[currentSynaps] = new GABAa_S() 
+        nRT[intraVec[currentSynaps].x(1)].soma intra[currentSynaps].loc(0.5)            // postsynaptic is nRT 
+        nRT[intraVec[currentSynaps].x(0)].soma intraNetCon[currentSynaps] = new NetCon(&v(0.5), intra[currentSynaps]) // presynaptic is nRT        
+        intra[currentSynaps].gmax = intraVec[currentSynaps].x(2) * gabaa_gmax // (nbrOfIntraSynapses / nRT_count)
+        currentSynaps = currentSynaps + 1
+    }
+
+    // GABAa settings are set later at nRT->TC GABAa synapses
+}
+
+{fh.close}
+
+//----------------------------------------------------------------------------
+//  GABAa and GABAb receptors in synapses from RE to TC cells
+//----------------------------------------------------------------------------
+
+fh = new File()
+{fh.ropen(nRT_TC_Edges)}
+
+nbrOfGabaSynapses = fh.scanvar()
+objref gabaa[nbrOfGabaSynapses]      // array holding the GABAa synapses
+objref gabab[nbrOfGabaSynapses]      // array holding the GABAb synapses
+objref gabaaVec[nbrOfGabaSynapses]   // array holding the vectors that hold the input data of the GABAa synapses
+objref gababVec[nbrOfGabaSynapses]   // array holding the vectors that hold the input data of the GABAb synapses
+objref gabaaNetCon[nbrOfGabaSynapses]
+objref gababNetCon[nbrOfGabaSynapses]
+
+currentSynaps = 0
+
+while (!fh.eof()) {    
+    gabaaVec[currentSynaps] = new Vector(synapsVectorSize)
+    gababVec[currentSynaps] = new Vector(synapsVectorSize)
+    for i = 0,gabaaVec[currentSynaps].size()-1	{
+        gabaaVec[currentSynaps].x(i) = fh.scanvar()		
+        gababVec[currentSynaps].x(i) = gabaaVec[currentSynaps].x(i)
+    }
+
+    // GABAa
+    gabaa[currentSynaps] = new GABAa_S()
+    TC[gabaaVec[currentSynaps].x(1)].soma gabaa[currentSynaps].loc(0.5)             // postsynaptic is TC 
+    nRT[gabaaVec[currentSynaps].x(0)].soma gabaaNetCon[currentSynaps] = new NetCon(&v(0.5), gabaa[currentSynaps]) // presynaptic is nRT    
+    // gabaa[currentSynaps].gmax = gabaaVec[currentSynaps].x(2) * 0.02 / (nbrOfGabaSynapses / nRT_count)
+    gabaa[currentSynaps].gmax = gabaaVec[currentSynaps].x(2) * gabaa_gmax // (nbrOfGabaSynapses / nRT_count)
+    
+    TC_GABAa[gabaaVec[currentSynaps].x(1)].append(gabaa[currentSynaps])
+
+    // GABAb
+    gabab[currentSynaps] = new GABAb_S()
+    TC[gababVec[currentSynaps].x(1)].soma gabab[currentSynaps].loc(0.5)             // postsynaptic is TC 
+    nRT[gababVec[currentSynaps].x(0)].soma gababNetCon[currentSynaps] = new NetCon(&v(0.5), gabab[currentSynaps]) // presynaptic is nRT        
+    gabab[currentSynaps].gmax = gababVec[currentSynaps].x(2) * gabab_gmax / (nbrOfGabaSynapses / nRT_count)
+
+    TC_GABAb[gababVec[currentSynaps].x(1)].append(gabab[currentSynaps])
+
+    currentSynaps = currentSynaps + 1
+}
+
+//GABAa
+Alpha_GABAa_S = 20		// from diffusion model
+Beta_GABAa_S = 0.162
+Cmax_GABAa_S = 0.5		// short pulses
+Cdur_GABAa_S = 0.3
+Erev_GABAa_S = -85		// Rinzel's Erev
+temperature_GABAa_S = temperature_gabaa
+
+//GABAb
+K1_GABAb_S	= 0.09	//	(/ms mM) forward binding rate to receptor
+K2_GABAb_S	= 0.0012 //	(/ms)	backward (unbinding) rate of receptor
+K3_GABAb_S	= 0.18 //	(/ms)	rate of G-protein production
+K4_GABAb_S	= 0.034 //	(/ms)	rate of G-protein decay
+KD_GABAb_S	= 100	//		dissociation constant of K+ channel
+n_GABAb_S	= 4	//		nb of binding sites of G-protein on K+
+Erev_GABAb_S	= -95	//	(mV)	reversal potential (E_K)
+Cmax_GABAb_S = 0.5	// short pulses
+Cdur_GABAb_S = 0.3
+temperature_GABAb_S = temperature_gabab
+
+{fh.close}
+
+//----------------------------------------------------------------------------
+//  Setup Start
+//----------------------------------------------------------------------------
+
+for i=0,TC_count-1 { 
+  TC[i].soma.ghbar_iar = 1.5e-5
+  // TC[i].kl.gmax = 0.003  
+  TC[i].kl.gmax = k_leak
+}
+
+// TC[0].soma.ghbar_iar = 2e-5	// shorter interspindle period
+// TC[0].kl.gmax = 0.005
+
+//----------------------------------------------------------------------------
+//  Setup recordings
+//----------------------------------------------------------------------------
+
+objref TC_record
+TC_record = new List()
+objref TC_record_it
+TC_record_it = new List()
+objref TC_record_ih
+TC_record_ih = new List()
+objref TC_record_gabaa
+TC_record_gabaa = new List()
+objref TC_record_gabab
+TC_record_gabab = new List()
+
+for i = 0,TC_count-1 {
+    TC_record.append(new Vector())
+    access TC[i].soma 
+    {TC_record.object(i).record(&v(0.5), dt)}    
+
+    if(SaveCurrent == 1) {
+        TC_record_it.append(new Vector())
+        TC_record_ih.append(new Vector())
+        TC_record_gabaa.append(new List())
+        TC_record_gabab.append(new List())   
+        {TC_record_it.object(i).record(&ica_it(0.5), dt)}
+        {TC_record_ih.object(i).record(&ih_iar(0.5), dt)}
+        for j = 0,TC_GABAa[i].count() - 1 {        
+            TC_record_gabaa.object(i).append(new Vector())
+            {TC_record_gabaa.object(i).object(j).record(&TC_GABAa[i].object(j).i, dt)}
+            TC_record_gabab.object(i).append(new Vector())
+            {TC_record_gabab.object(i).object(j).record(&TC_GABAb[i].object(j).i, dt)}
+        }
+    }
+}
+
+objref nRT_record
+nRT_record = new List()
+objref nRT_record_it2
+nRT_record_it2 = new List()
+objref nRT_record_ampa
+nRT_record_ampa = new List()
+
+for i = 0,nRT_count-1 {
+    nRT_record.append(new Vector())
+    access nRT[i].soma 
+    {nRT_record.object(i).record(&v(0.5), dt)}
+    
+    if(SaveCurrent == 1) {
+        nRT_record_it2.append(new Vector())
+        nRT_record_ampa.append(new List())
+        {nRT_record_it2.object(i).record(&ica_it2(0.5), dt)}  
+        for j = 0,nRT_AMPA[i].count() - 1 {        
+            nRT_record_ampa.object(i).append(new Vector())
+            {nRT_record_ampa.object(i).object(j).record(&nRT_AMPA[i].object(j).i, dt)}
+        }  
+    }
+}
+
+//----------------------------------------------------------------------------
+//  RUN
+//----------------------------------------------------------------------------
+
+init()
+run()
+
+//----------------------------------------------------------------------------
+//  Write to file
+//----------------------------------------------------------------------------
+
+objref tempmatrix
+
+proc writeRecord2D() {
+    fh = new File()
+    {fh.wopen($s1)}
+    tempmatrix = new Matrix()
+    {tempmatrix.resize($o2.object(0).size(), $o2.count())}
+    for i = 0,$o2.count()-1 {
+        tempmatrix.setcol(i, $o2.object(i))
+    }
+    {tempmatrix.fprint(0, fh, " %g")}
+    {fh.close}
+}
+
+proc writeRecord3D() {
+    fh = new File()
+    {fh.wopen($s1)}
+    tempmatrix = new Matrix()
+    {tempmatrix.resize($o2.object(0).object(0).size(), $3)}
+    synapsCounter = 0
+    for i = 0,$o2.count()-1 {
+        for j = 0,$o2.object(i).count()-1 {
+            tempmatrix.setcol(synapsCounter, $o2.object(i).object(j))
+            synapsCounter = synapsCounter + 1
+        }
+    }        
+    {tempmatrix.fprint(0, fh, " %g")}
+    {fh.close}
+}
+
+writeRecord2D(TC_Results, TC_record)
+writeRecord2D(nRT_Results, nRT_record)
+
+strdef tempPath
+if(SaveCurrent == 1) {
+    sprint(tempPath, "%s%s", OutputFolder, "\\it.txt")
+    writeRecord2D(tempPath, TC_record_it)
+    sprint(tempPath, "%s%s", OutputFolder, "\\ih.txt")
+    writeRecord2D(tempPath, TC_record_ih)
+    sprint(tempPath, "%s%s", OutputFolder, "\\it2.txt")
+    writeRecord2D(tempPath, nRT_record_it2)
+  
+    sprint(tempPath, "%s%s", OutputFolder, "\\gabaa.txt")
+    writeRecord3D(tempPath, TC_record_gabaa, nbrOfGabaSynapses)
+    sprint(tempPath, "%s%s", OutputFolder, "\\gabab.txt")
+    writeRecord3D(tempPath, TC_record_gabab, nbrOfGabaSynapses)
+    sprint(tempPath, "%s%s", OutputFolder, "\\ampa.txt")
+    writeRecord3D(tempPath, nRT_record_ampa, nbrOfAmpaSynapses)
+}
+
+
+//----------------------------------------------------------------------------
+//  DONE
+//----------------------------------------------------------------------------
+
+// {load_file("save_settings.hoc")}
+print " DONE "

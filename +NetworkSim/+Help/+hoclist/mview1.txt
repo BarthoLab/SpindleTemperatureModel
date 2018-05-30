@@ -1,0 +1,4 @@
+  mview1.hoc
+    NOT FOR SIM USE
+    Necessary for automatic saving of hoc settings
+    Overwrite c:\nrn73w64\lib\hoc\mview\mview1.hoc with this file    

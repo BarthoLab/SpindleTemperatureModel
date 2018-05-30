@@ -1,0 +1,65 @@
+/*--------------------------------------------------------------
+	TEMPLATE FILE FOR DEFINING THALAMOCORTICAL NEURONS
+	--------------------------------------------------
+
+	One compartment model and currents derived from:
+
+ 	McCormick, D.A. and Huguenard, J.R.  A model of the 
+	electrophysiological properties of thalamocortical relay neurons.  
+	J. Neurophysiology 68: 1384-1400, 1992.
+
+	- passive: parameters idem Rinzel
+	- HH: Traub with higher threshold
+	- IT: m2h, nernst, tau_h modified with double exponential
+	- Ih: Huguenard with Ca++ dependence added, Ca++-binding protein
+	- Ca++: simple decay, faster than McCormick
+
+
+	This model is described in detail in:
+
+	Destexhe, A., Bal, T., McCormick, D.A. and Sejnowski, T.J.
+	Ionic mechanisms underlying synchronized oscillations and propagating
+	waves in a model of ferret thalamic slices. Journal of Neurophysiology
+	76: 2049-2070, 1996.
+	See also http://www.cnl.salk.edu/~alain , http://cns.fmed.ulaval.ca
+
+
+	Alain Destexhe, Salk Institute and Laval University, 1995
+
+--------------------------------------------------------------*/
+
+
+//print " "
+//print " << defining template for one-compartment sTC cell >> "
+//print " "
+
+
+begintemplate Dummy		// create a new template object
+public soma 
+
+create soma[1]			// one compartment of about 29000 um2
+soma {
+  nseg = 1
+  diam = 96
+  L = 96
+  cm = 1
+}
+
+
+proc init() {
+  soma {
+	diam = 96		// geometry 
+	L = 96			// so that area is about 29000 um2
+	nseg = 1
+	Ra = 100
+
+	insert pas		// leak current 
+	e_pas = -70		// from Rinzel
+	g_pas = 1e-5
+    }
+
+}
+endtemplate Dummy
+
+
+
