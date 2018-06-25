@@ -86,7 +86,7 @@ kl = new kleak()
 	cao = 2 
 	eca = 120 
 	gcabar_it = 0.002
-    temperature_it = $1
+    temperature_it = $1 // default: 36
 
 	insert iar		// h-current
 	eh = -40		// reversal
@@ -98,7 +98,7 @@ kl = new kleak()
 	Pc_iar = 0.01		// half-activation of binding on Ih channel    
 	ginc_iar = 2		// augm of conductance of bound Ih
 	ghbar_iar = 2e-5	// low Ih for slow oscillations    
-    temperature_iar = $2
+    temperature_iar = $2    // default: 36
 
 	insert cad		// calcium decay
 	depth_cad = 1

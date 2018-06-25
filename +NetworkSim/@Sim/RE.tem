@@ -60,7 +60,7 @@ proc init() { local v_potassium, v_sodium
 
 	insert pas		// leak current 	
     e_pas = -78
-    g_pas = $2
+    g_pas = $2      // default: 5e-5
 
 	insert hh2		// Hodgin-Huxley INa and IK 
 	ek = v_potassium
@@ -70,8 +70,8 @@ proc init() { local v_potassium, v_sodium
     // gnabar_hh2 = 0
     gnabar_hh2 = 0.06
 	gkbar_hh2 = 0.006
-    kshift_hh2 = $7
-    nashift_hh2 = $7
+    kshift_hh2 = $7     // default: 0
+    nashift_hh2 = $7    // default: 0
 
 	insert it2 		// reticular IT current 
 	cai = 2.4e-4 
@@ -81,8 +81,8 @@ proc init() { local v_potassium, v_sodium
 	qm_it2 = 2.5		// low q10
 	qh_it2 = 2.5
 	// gcabar_it2 = 0.00175	// strong
-    gcabar_it2 = $6
-    temperature_it2 = $1
+    gcabar_it2 = $6     // default: 0.00175
+    temperature_it2 = $1    // default: 36
     
 
 /*
@@ -99,18 +99,18 @@ proc init() { local v_potassium, v_sodium
 	kd_cad_pump = 1e-4
 	kt_cad_pump = 1e-4
 	depth_cad_pump = 1
-	taur_cad_pump = $3
+	taur_cad_pump = $3  // default: 200
     
     // Source: https://senselab.med.yale.edu/modeldb/ShowModel.cshtml?model=3670&file=/NTW_NEW/ICAN.mod#tabs-1
     // Destexhe SK model 1994
 	insert iahp		// burst IAHP
 	// cac_iahp = 0.025	
-    cac_iahp = $4
+    cac_iahp = $4       // default: 0.025
     beta_iahp = 0.005
 	taumin_iahp = 0.1
 	ek=v_potassium
 	// gkbar_iahp = 0.01
-    gkbar_iahp = $5
+    gkbar_iahp = $5     // default: 0.01
   
 	insert ican 		// nonspecific cation current ICAN
 	//cac_ican = 0.01
