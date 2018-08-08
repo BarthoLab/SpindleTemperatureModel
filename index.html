@@ -60,7 +60,7 @@
     <h2 id="Network">Network</h2>
     <h3 id="Network topology">Network topology</h3>
     <p>
-        For the construction of the model we interpret the connections of the network as a bipartite directional graph where the two sets of nodes are the TC and nRT cells. We used a 1-dimensional network: both sets of cells are on a one unit long line with equal distances between them, and the two lines of the two sets are parallel to each other. For the sake of reproducibility we used a deterministic random number generator based on the Mersenne Twister algorithm to choose target cells. Our examined networks consist of 100 TC cells and 20 nRT cells. Each TC cell targets 8 different nRT cells from the closest 20, based on normal distribution. The nRT cells target 20 different TCs from the closest 50. We did not allow reciprocal connections in our networks. The algorithm creates the network without any consideration of the reciprocal rule, and it trims these pairs after the completion of the structure. In the case of bidirectional TC and nRT connections, one is removed based on a coin flip.
+        For the construction of the model we interpret the connections of the network as a bipartite directional graph where the two sets of nodes are the TC and nRT cells. We used a 1-dimensional network: both sets of cells are on a one unit long line with equal distances between them, and the two lines of the two sets are parallel to each other. For the sake of reproducibility, we used a deterministic random number generator based on the Mersenne Twister algorithm to choose target cells. Our examined networks consist of 100 TC cells and 20 nRT cells. Each TC cell targets 8 different nRT cells from the closest 20, based on normal distribution. The nRT cells target 20 different TCs from the closest 50.
         <details>
             <summary>Network structure</summary>
             <div class="img-resize">
@@ -87,7 +87,7 @@
     </details>
     <h3 id="No reciprocal connections allowed">No reciprocal connections allowed</h3>
     <p>
-        The networks do not allow reciprocal connections between the cells, so if a TC cell gives an input to an nRT cell it cannot receive one from the same cell, and vice-versa. The algorithm creates the network without any consideration of the reciprocal rule, and it trims these pairs after the completion of the network. If a TC and nRT pair are connected both ways, one of the directions is removed based on a coin flip.
+        We did not allow reciprocal connections in our networks. If a TC cell gives an input to an nRT cell, then it cannot receive input from the same cell, and vice-versa. The algorithm creates the network without any consideration of the reciprocal rule, and it trims these pairs after the completion of the network. If a TC and nRT pair is connected both ways, one of the directions is removed based on a coin flip.
     </p>
     <h3 id="Synaptic strength">Synaptic strength</h3>
     <p>
@@ -174,13 +174,13 @@ GABA}_A}$$
     </p>
     <h2>References</h2>
     <ol>
-        <li id="ref1">Destexhe, Alain, et al. "Ionic mechanisms underlying synchronized oscillations and propagating waves in a model of ferret thalamic slices." Journal of neurophysiology 76.3 (1996): 2049-2070.</li>
-        <li id="ref2">Hines, Michael, and Ted Carnevale. "NEURON simulation environment." Encyclopedia of Computational Neuroscience (2015): 2012-2017.</li>        
-        <li id="ref3">Bal, T., M. von Krosigk, and D. A. McCormick. 1995. “Role of the Ferret Perigeniculate Nucleus in the Generation of Synchronized Oscillations in Vitro.” The Journal of Physiology 483(3):665–85.</li>
-        <li id="ref4">von Krosigk, Marcus, Thierry Bal, and David A. McCormick. "Cellular mechanisms of a synchronized oscillation in the thalamus." Science 261.5119 (1993): 361-364.</li>
-        <li id="ref5">Postlethwaite, Michael, et al. "Acceleration of AMPA receptor kinetics underlies temperature‐dependent changes in synaptic strength at the rat calyx of Held." The Journal of physiology 579.1 (2007): 69-84.</li>
-        <li id="ref6">Otis, T. S., and I. Mody. "Modulation of decay kinetics and frequency of GABAA receptor-mediated spontaneous inhibitory postsynaptic currents in hippocampal neurons." Neuroscience 49.1 (1992): 13-32.</li>
-        <li id="ref7">Barthó, Péter, et al. "Ongoing network state controls the length of sleep spindles via inhibitory activity." Neuron 82.6 (2014): 1367-1379.</li>
+        <li id="ref1">Destexhe, A., et al. "Ionic mechanisms underlying synchronized oscillations and propagating waves in a model of ferret thalamic slices." Journal of Neurophysiology 76(3):2049–70, 1996.</li>
+        <li id="ref2">Hines, M., and Ted C. "The NEURON simulation environment." Neural Computation 9(6):1179–1209, 1997.</li>        
+        <li id="ref3">Bal, T., von Krosigk, M., and McCormick, D. A. "Role of the Ferret Perigeniculate Nucleus in the Generation of Synchronized Oscillations in Vitro." Journal of Physiology 483(3):665–685, 1995.</li>
+        <li id="ref4">von Krosigk, M., Bal, T., and McCormick, D. A. "Cellular mechanisms of a synchronized oscillation in the thalamus." Science 261(5119):361-364, 1993.</li>
+        <li id="ref5">Postlethwaite, M., et al. "Acceleration of AMPA receptor kinetics underlies temperature‐dependent changes in synaptic strength at the rat calyx of Held." Journal of Physiology 579(1):69-84, 2007.</li>
+        <li id="ref6">Otis, T. S., and Mody, I. "Modulation of decay kinetics and frequency of GABAA receptor-mediated spontaneous inhibitory postsynaptic currents in hippocampal neurons." Neuroscience 49(1):13-32, 1992.</li>
+        <li id="ref7">Barthó, P, et al. "Ongoing network state controls the length of sleep spindles via inhibitory activity." Neuron 82(6):1367-1379, 2014.</li>
     </ol>
 </body>
 </html>
